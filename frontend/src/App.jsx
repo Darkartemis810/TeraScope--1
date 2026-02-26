@@ -23,6 +23,7 @@ import AlertToaster from './modules/AlertPanel/AlertToaster';
 import AssessMyArea from './modules/AssessMyArea/AssessMyArea';
 import AIChat from './modules/AIChat/AIChat';
 import SatelliteOps from './modules/SatelliteOps/SatelliteOps';
+import { Dashboard } from './modules/Dashboard';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -75,6 +76,7 @@ const Navbar = () => {
       <div className="hidden md:flex items-center gap-6 font-mono text-sm opacity-80">
         <a href="/" className="hover:text-plasma transition-colors">HUB</a>
         <a href="/monitor" className="hover:text-plasma transition-colors">MONITOR</a>
+        <a href="/intelligence" className="hover:text-plasma transition-colors">INTELLIGENCE</a>
         <a href="#alerts" className="hover:text-plasma transition-colors" onClick={(e) => { e.preventDefault(); toggleAlertPanel(); }}>ALERTS</a>
       </div>
 
@@ -105,26 +107,13 @@ const LiveMonitorModule = () => {
   );
 };
 
-// Layout: Damage Intelligence Module
+// Layout: Damage Intelligence Module (Now Dashboard with historical disasters)
 const DamageIntelligenceModule = () => {
   return (
-    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[1400px] mx-auto animate-fade-in">
-      <div className="flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
-        <AIReportPanel />
-      </div>
-      <div className="flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
-        <div className="bg-graphite rounded-3xl p-5 border border-gray-800 shadow-glow">
-          <SeverityChart />
-        </div>
-        <div className="h-96">
-          <InfraRiskPanel />
-        </div>
-        <div className="bg-graphite rounded-3xl p-5 border border-gray-800 flex-1">
-          <RecoveryChart />
-        </div>
-      </div>
+    <>
+      <Dashboard />
       <AIChat />
-    </div>
+    </>
   );
 };
 
