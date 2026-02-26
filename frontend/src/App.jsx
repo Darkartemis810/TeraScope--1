@@ -19,8 +19,10 @@ import RecoveryChart from './modules/RecoveryChart/RecoveryChart';
 import GroundTruthLayer from './modules/GroundTruthLayer/GroundTruthLayer';
 import PublicReport from './modules/PublicReport/PublicReport';
 import AlertPanel from './modules/AlertPanel/AlertPanel';
+import AlertToaster from './modules/AlertPanel/AlertToaster';
 import AssessMyArea from './modules/AssessMyArea/AssessMyArea';
 import AIChat from './modules/AIChat/AIChat';
+import SatelliteOps from './modules/SatelliteOps/SatelliteOps';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -129,29 +131,20 @@ const DamageIntelligenceModule = () => {
 // Layout: Satellite Operations Module
 const SatelliteOpsModule = () => {
   return (
-    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 flex flex-col gap-6 max-w-[1920px] mx-auto animate-fade-in">
-      <div className="flex-1 relative rounded-3xl overflow-hidden border border-gray-800 shadow-glow min-h-[500px]">
-        <BeforeAfterSlider />
-      </div>
-      <div className="h-56 rounded-3xl bg-graphite border border-gray-800 p-4">
-        <Timeline />
-      </div>
+    <>
+      <SatelliteOps />
       <AIChat />
-    </div>
+    </>
   );
 };
 
 // Placeholder layout for Assess
 const AssessModule = () => {
-  const { toggleAssessModal } = useStore();
-  useEffect(() => {
-    toggleAssessModal(true);
-  }, [toggleAssessModal]);
-
   return (
     <div className="min-h-screen pt-32 px-8 max-w-[1400px] mx-auto text-center animate-fade-in">
       <h1 className="text-4xl font-sora font-semibold text-ghost mb-4">Field Assessment Module</h1>
-      <p className="text-gray-400 font-mono">Opening civilian submission interface...</p>
+      <p className="text-gray-400 font-mono mb-8">Submit ground truth reports from your location</p>
+      <p className="text-sm text-gray-500 font-mono">Use the "Assess My Area" button at the bottom of the screen to submit reports.</p>
     </div>
   );
 };
@@ -172,6 +165,7 @@ const App = () => {
 
       {/* Global Overlays */}
       <AlertPanel />
+      <AlertToaster />
       <AssessMyArea />
     </Router>
   );

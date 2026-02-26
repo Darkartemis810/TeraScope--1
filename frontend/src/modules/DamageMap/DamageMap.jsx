@@ -65,11 +65,11 @@ const DamageMap = () => {
             if (analysisData && analysisData.buildings_geojson) {
                 L.geoJSON(analysisData.buildings_geojson, {
                     style: (feature) => {
-                        const level = feature.properties.damage_level;
-                        let color = '#34C759'; // intact
-                        if (level === 'destroyed') color = '#FF3B30';
-                        else if (level === 'major') color = '#FF9500';
-                        else if (level === 'minor') color = '#FFCC00';
+                        const label = feature.properties.damage_label;
+                        let color = '#34C759'; // no-damage (intact)
+                        if (label === 'destroyed') color = '#FF3B30';
+                        else if (label === 'major-damage') color = '#FF9500';
+                        else if (label === 'minor-damage') color = '#FFCC00';
 
                         return {
                             color: color,
@@ -78,8 +78,8 @@ const DamageMap = () => {
                         };
                     },
                     onEachFeature: (feature, layer) => {
-                        const lvl = feature.properties.damage_level.toUpperCase();
-                        layer.bindPopup(`<div class="font-sora text-sm"><b class="text-plasma">Building</b><br/>Status: ${lvl}</div>`);
+                        const label = (feature.properties.damage_label || 'unknown').toUpperCase();
+                        layer.bindPopup(`<div class="font-sora text-sm"><b class="text-plasma">Building</b><br/>Status: ${label}</div>`);
                     }
                 }).addTo(layerGrpRef.current);
             }
