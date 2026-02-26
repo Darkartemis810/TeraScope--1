@@ -39,7 +39,14 @@ async def poll_gdacs():
                 logger.error(f"Error processing GDACS entry {entry.get('id', '?')}: {e}")
         
         logger.info(f"GDACS poll: processed {count} events")
-        await execute("UPDATE module_health SET last_poll = now(), status = 'ok' WHERE module = 'event_monitor'")
+        
+        # Broadcast update to connected clients
+        if count > 0:
+            from shared.ws import manager
+            from modules.event_monitor.router import list_events
+            events_data = await list_events()
+            await manager.broadcast("events_update", events_data)
+            
     except Exception as e:
         logger.error(f"GDACS poll failed: {e}")
 
@@ -64,7 +71,15 @@ async def _upsert_gdacs_event(entry):
     
     title = entry.get("title", "Unknown Event")
     country = entry.get("gdacs_country", "")
-    population = int(entry.get("gdacs_population", 0) or 0)
+    
+    raw_pop = entry.get("gdacs_population", 0)
+    try:
+        if isinstance(raw_pop, dict):
+            population = int(raw_pop.get("value", 0))
+        else:
+            population = int(raw_pop or 0)
+    except (ValueError, TypeError):
+        population = 0
     
     # Check if event already exists
     existing = await fetchrow("SELECT id FROM events WHERE gdacs_id = $1", gdacs_id)

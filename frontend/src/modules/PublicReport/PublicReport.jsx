@@ -17,8 +17,8 @@ const PublicReport = () => {
                     <button className="flex items-center gap-2 bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition-colors btn-magnetic">
                         <Share2 className="w-4 h-4" /> Share
                     </button>
-                    <button className="flex items-center gap-2 bg-plasma text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-plasma/90 transition-colors btn-magnetic shadow-glow">
-                        <Download className="w-4 h-4" /> PDF Brief
+                    <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm btn-solid btn-magnetic">
+                        <Printer className="w-4 h-4" /> PDF Brief
                     </button>
                 </div>
             </nav>

@@ -24,7 +24,7 @@ const AssessMyArea = () => {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[500] bg-void/80 backdrop-blur-md border border-plasma px-6 py-3 rounded-full flex items-center gap-3 text-ghost hover:text-white hover:bg-plasma/20 transition-all shadow-glow hover:-translate-y-1 btn-magnetic"
+                    className="fixed bottom-6 right-6 md:right-auto md:left-1/2 md:-translate-x-1/2 z-[500] px-6 py-3 rounded-full flex items-center gap-3 transition-all hover:-translate-y-1 btn-magnetic btn-solid"
                 >
                     <PencilLine className="w-5 h-5 text-plasma" />
                     <span className="font-sora font-semibold text-sm">Assess My Area</span>
@@ -53,7 +53,7 @@ const AssessMyArea = () => {
                             {status === 'idle' && (
                                 <button
                                     onClick={() => setStatus('drawing')}
-                                    className="w-full bg-plasma text-white rounded-xl py-3 font-semibold hover:bg-plasma/90 transition-colors shadow-glow"
+                                    className="w-full btn-solid py-3 rounded-xl font-semibold btn-magnetic"
                                 >
                                     START DRAWING ON MAP
                                 </button>

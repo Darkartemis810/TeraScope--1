@@ -6,6 +6,7 @@ apscheduler==3.10.4
 python-dotenv==1.0.1
 boto3==1.35.81
 feedparser==6.0.11
+numpy
 
 python-multipart==0.0.20
 reportlab==4.2.5

@@ -55,7 +55,7 @@ async def submit_ground_report(
     report_id = await fetchrow("""
         INSERT INTO ground_reports 
             (event_id, damage_type, damage_class, ai_confidence, description,
-             photo_r2_key, photo_url, satellite_class, agreement, disputed, submitter_hash)
+             photo_storage_key, photo_url, satellite_class, agreement, disputed, submitter_hash)
         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING id
     """, event_id, DAMAGE_CLASSES.get(damage_class, "unknown"), damage_class, 

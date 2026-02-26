@@ -21,6 +21,10 @@ from modules.ground_truth.router import router as ground_truth_router
 from modules.recovery_tracker.router import router as recovery_router
 from modules.alerts_engine.router import router as alerts_router
 
+# Import WebSocket manager
+from fastapi import WebSocket, WebSocketDisconnect
+from shared.ws import manager
+
 # Import polling jobs
 from modules.event_monitor.service import poll_gdacs, poll_usgs, poll_eonet, deactivate_old_events
 from modules.recovery_tracker.service import check_new_passes
@@ -80,6 +84,26 @@ app.include_router(reporting_router, prefix="/api")
 app.include_router(ground_truth_router, prefix="/api")
 app.include_router(recovery_router, prefix="/api")
 app.include_router(alerts_router, prefix="/api")
+
+@app.websocket("/api/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        # Push initial data state immediately upon connection
+        from modules.event_monitor.router import list_events
+        from modules.alerts_engine.router import list_alerts
+        
+        events = await list_events()
+        alerts = await list_alerts()
+        
+        await manager.broadcast("events_update", events)
+        await manager.broadcast("alerts_update", alerts)
+        
+        while True:
+            # Keep connection alive, listen for any client messages (ping/pong)
+            data = await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 @app.get("/api/health")
 async def root_health():

@@ -1,38 +1,55 @@
-"""Shared Cloudflare R2 client using boto3."""
+"""
+Shared file storage client — uses Supabase Storage.
+Drop-in replacement for the original R2 client; same upload_bytes / get_public_url interface.
+"""
 import os
-import boto3
-from botocore.client import Config
+import logging
+import httpx
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
-def get_r2_client():
-    account_id = os.getenv("CF_ACCOUNT_ID")
-    if not account_id:
-        raise RuntimeError("CF_ACCOUNT_ID not set. Configure terra/SENTINEL_API_KEYS.env → rename to .env")
-    return boto3.client(
-        "s3",
-        endpoint_url=f"https://{account_id}.r2.cloudflarestorage.com",
-        aws_access_key_id=os.getenv("R2_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY"),
-        config=Config(signature_version="s3v4"),
-        region_name="auto",
-    )
+_SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "sentinel-media")
+
+
+def _headers() -> dict:
+    return {
+        "apikey": _SERVICE_KEY,
+        "Authorization": f"Bearer {_SERVICE_KEY}",
+    }
+
 
 def upload_bytes(key: str, data: bytes, content_type: str = "application/octet-stream") -> str:
-    """Upload bytes to R2 and return the public URL."""
-    bucket = os.getenv("R2_BUCKET_NAME", "sentinel-media")
-    client = get_r2_client()
-    client.put_object(
-        Bucket=bucket,
-        Key=key,
-        Body=data,
-        ContentType=content_type,
-    )
-    public_domain = os.getenv("R2_PUBLIC_DOMAIN", "")
-    return f"{public_domain}/{key}" if public_domain else f"r2://{bucket}/{key}"
+    """Upload bytes to Supabase Storage and return the public URL."""
+    if not _SUPABASE_URL or not _SERVICE_KEY:
+        logger.warning("Supabase credentials not set — returning placeholder URL")
+        return f"storage://{_BUCKET}/{key}"
+
+    url = f"{_SUPABASE_URL}/storage/v1/object/{_BUCKET}/{key}"
+    headers = {**_headers(), "Content-Type": content_type}
+
+    # Supabase uses upsert header to overwrite existing files
+    headers["x-upsert"] = "true"
+
+    try:
+        resp = httpx.post(url, content=data, headers=headers, timeout=60)
+        resp.raise_for_status()
+        logger.info(f"Uploaded {key} to Supabase Storage ({len(data)} bytes)")
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Supabase Storage upload failed: {e.response.status_code} — {e.response.text}")
+        return f"storage://{_BUCKET}/{key}"
+    except Exception as e:
+        logger.error(f"Supabase Storage upload error: {e}")
+        return f"storage://{_BUCKET}/{key}"
+
+    return get_public_url(key)
+
 
 def get_public_url(key: str) -> str:
-    public_domain = os.getenv("R2_PUBLIC_DOMAIN", "")
-    bucket = os.getenv("R2_BUCKET_NAME", "sentinel-media")
-    return f"{public_domain}/{key}" if public_domain else f"r2://{bucket}/{key}"
+    """Return the public URL for a stored file."""
+    if not _SUPABASE_URL:
+        return f"storage://{_BUCKET}/{key}"
+    return f"{_SUPABASE_URL}/storage/v1/object/public/{_BUCKET}/{key}"

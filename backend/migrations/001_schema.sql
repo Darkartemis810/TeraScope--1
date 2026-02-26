@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS ground_reports (
     damage_class SMALLINT CHECK (damage_class BETWEEN 0 AND 3),
     ai_confidence FLOAT CHECK (ai_confidence BETWEEN 0 AND 1),
     description TEXT,
-    photo_r2_key TEXT,
+    photo_storage_key TEXT,
     photo_url TEXT,
     satellite_class SMALLINT,
     agreement BOOLEAN,

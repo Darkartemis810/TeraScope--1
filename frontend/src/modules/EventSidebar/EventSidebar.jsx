@@ -1,15 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useStore } from '../../store';
 import { Flame, Waves, Activity, Wind, AlertTriangle, MountainSnow } from 'lucide-react';
 import gsap from 'gsap';
-
-// Mock data until API is fully wired
-const MOCK_EVENTS = [
-    { id: '1', title: 'California Wildfire Complex', type: 'WF', severity: 'red', date: '2026-02-25', lat: 38.5, lon: -121.5, active: true },
-    { id: '2', title: 'Typhoon Mawar Impact', type: 'TC', severity: 'orange', date: '2026-02-24', lat: 13.5, lon: 144.8, active: true },
-    { id: '3', title: 'Hokkaido Earthquake M6.2', type: 'EQ', severity: 'red', date: '2026-02-23', lat: 43.1, lon: 141.3, active: true },
-    { id: '4', title: 'Rhine River Flooding', type: 'FL', severity: 'orange', date: '2026-02-20', lat: 50.9, lon: 6.9, active: false }
-];
 
 const EventIcon = ({ type }) => {
     switch (type) {
@@ -23,19 +15,11 @@ const EventIcon = ({ type }) => {
 };
 
 const EventSidebar = () => {
-    const { events, setEvents, sidebarFilter, setSidebarFilter, setActiveEventId, activeEventId } = useStore();
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Fetch events (using mock for now to ensure rapid dev)
-        setTimeout(() => {
-            setEvents(MOCK_EVENTS);
-            setLoading(false);
-        }, 1000);
-    }, []);
+    const { events, sidebarFilter, setSidebarFilter, setActiveEventId, activeEventId, wsConnected } = useStore();
+    const loading = !wsConnected && events.length === 0;
 
     const filteredEvents = events.filter(e =>
-        sidebarFilter === 'ALL' || e.type === sidebarFilter
+        sidebarFilter === 'ALL' || e.event_type === sidebarFilter
     );
 
     return (
@@ -50,13 +34,13 @@ const EventSidebar = () => {
 
             {/* Filters */}
             <div className="flex gap-2 mb-4 overflow-x-auto custom-scrollbar pb-2">
-                {['ALL', 'WF', 'FL', 'EQ', 'TC'].map(f => (
+                {['ALL', 'WF', 'FL', 'EQ', 'TC', 'VO'].map(f => (
                     <button
                         key={f}
                         onClick={() => setSidebarFilter(f)}
                         className={`px-3 py-1 text-xs font-mono rounded-full border transition-colors whitespace-nowrap ${sidebarFilter === f
-                                ? 'bg-plasma text-white border-plasma'
-                                : 'bg-void text-gray-400 border-gray-700 hover:border-plasma hover:text-white'
+                            ? 'bg-plasma text-white border-plasma'
+                            : 'bg-void text-gray-400 border-gray-700 hover:border-plasma hover:text-white'
                             }`}
                     >
                         {f}
@@ -79,20 +63,20 @@ const EventSidebar = () => {
                     <div
                         key={ev.id}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer ${activeEventId === ev.id
-                                ? 'bg-void border-plasma shadow-glow'
-                                : 'bg-void/40 border-gray-800 hover:border-gray-600 hover:-translate-y-1'
+                            ? 'bg-void border-plasma shadow-glow'
+                            : 'bg-void/40 border-gray-800 hover:border-gray-600 hover:-translate-y-1'
                             }`}
                         onClick={() => setActiveEventId(ev.id)}
                         style={{ animationDelay: `${i * 100}ms` }}
                     >
                         <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <EventIcon type={ev.type} />
-                                <span className="font-mono text-xs text-gray-400">{ev.date}</span>
+                                <EventIcon type={ev.event_type} />
+                                <span className="font-mono text-xs text-gray-400">{ev.event_date}</span>
                             </div>
                             <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${ev.severity === 'red' ? 'bg-alert-red/20 text-alert-red' :
-                                    ev.severity === 'orange' ? 'bg-alert-orange/20 text-alert-orange' :
-                                        'bg-alert-green/20 text-alert-green'
+                                ev.severity === 'orange' ? 'bg-alert-orange/20 text-alert-orange' :
+                                    'bg-alert-green/20 text-alert-green'
                                 }`}>
                                 {ev.severity}
                             </span>
@@ -104,8 +88,8 @@ const EventSidebar = () => {
 
                         <button
                             className={`w-full py-2 rounded-xl text-xs font-bold transition-all btn-magnetic ${activeEventId === ev.id
-                                    ? 'bg-plasma text-white'
-                                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                ? 'bg-plasma text-white'
+                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                                 }`}
                         >
                             ANALYZE AREA

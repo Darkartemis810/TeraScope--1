@@ -8,9 +8,22 @@ logger = logging.getLogger(__name__)
 
 async def run_alert_watchers():
     """Main alert loop — checks all threshold conditions."""
+    initial_count = await fetchrow("SELECT COUNT(*) as c FROM alert_log WHERE acknowledged = false")
+    c1 = initial_count["c"] if initial_count else 0
+    
     await _watch_critical_events()
     await _watch_infrastructure_at_risk()
     await _watch_high_disputes()
+    
+    final_count = await fetchrow("SELECT COUNT(*) as c FROM alert_log WHERE acknowledged = false")
+    c2 = final_count["c"] if final_count else 0
+    
+    if c2 > c1:
+        # New alerts generated, broadcast to clients
+        from shared.ws import manager
+        from modules.alerts_engine.router import list_alerts
+        alerts_data = await list_alerts()
+        await manager.broadcast("alerts_update", alerts_data)
 
 async def _watch_critical_events():
     """Alert on new Red severity events."""
@@ -63,14 +76,18 @@ async def _watch_infrastructure_at_risk():
 async def _watch_high_disputes():
     """Alert when 5+ disputed reports exist for same location."""
     rows = await fetch("""
-        SELECT event_id, COUNT(*) as cnt
-        FROM ground_reports
-        WHERE disputed = true
-        GROUP BY event_id
-        HAVING COUNT(*) >= 5
-        AND NOT EXISTS (
+        WITH disputed_counts AS (
+            SELECT event_id, COUNT(*) as cnt
+            FROM ground_reports
+            WHERE disputed = true
+            GROUP BY event_id
+            HAVING COUNT(*) >= 5
+        )
+        SELECT dc.event_id, dc.cnt
+        FROM disputed_counts dc
+        WHERE NOT EXISTS (
             SELECT 1 FROM alert_log al 
-            WHERE al.event_id = ground_reports.event_id
+            WHERE al.event_id = dc.event_id
             AND al.alert_type = 'high_dispute_density'
             AND al.created_at > now() - interval '12 hours'
         )

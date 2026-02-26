@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Vapor Clinic Palette
-        void: "#0A0A14",     // Deep background
-        plasma: "#7B61FF",   // Primary accent
-        ghost: "#F0EFF4",    // Light text
-        graphite: "#18181B", // Card surfaces
+        // High-Contrast Bold Scheme
+        void: "#05050A",     // True dark background
+        plasma: "#00E5FF",   // Bold Electric Cyan accent
+        ghost: "#FFFFFF",    // Pure white text
+        graphite: "#12121A", // Solid card surfaces
         alert: {
           red: "#FF3B30",
           orange: "#FF9500",
@@ -30,8 +30,8 @@ export default {
         '4xl': '3rem',
       },
       boxShadow: {
-        'glow': '0 0 20px -5px rgba(123, 97, 255, 0.4)',
-        'float': '0 20px 40px -10px rgba(0, 0, 0, 0.5)',
+        'glow': '0 0 20px -5px rgba(0, 229, 255, 0.4)',
+        'float': '0 20px 40px -10px rgba(0, 0, 0, 0.7)',
       }
     },
   },

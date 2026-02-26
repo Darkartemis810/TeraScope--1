@@ -2,14 +2,8 @@ import React from 'react';
 import { useStore } from '../../store';
 import { X, ShieldAlert, Check, Activity } from 'lucide-react';
 
-const ALERTS = [
-    { id: '1', type: 'critical', msg: 'CRITICAL EVENT: Hokkaido Earthquake M6.2', time: '2m ago' },
-    { id: '2', type: 'warning', msg: 'HIGH DISPUTE DENSITY: 12 field reports disagree with satellite assessment in Zone Beta.', time: '14m ago' },
-    { id: '3', type: 'info', msg: 'NEW SATELLITE PASS: Sentinel-2 imagery available for Rhine Flooding.', time: '1h ago' },
-];
-
 const AlertPanel = () => {
-    const { isAlertPanelOpen, toggleAlertPanel } = useStore();
+    const { isAlertPanelOpen, toggleAlertPanel, alerts } = useStore();
 
     if (!isAlertPanelOpen) return null;
 
@@ -31,19 +25,19 @@ const AlertPanel = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex flex-col gap-4">
-                    {ALERTS.map(alert => (
+                    {alerts.map(alert => (
                         <div key={alert.id} className="bg-void/50 border border-gray-800 rounded-2xl p-4 flex flex-col gap-3">
                             <div className="flex items-start justify-between gap-3">
-                                <div className={`mt-0.5 ${alert.type === 'critical' ? 'text-alert-red animate-pulse' :
-                                        alert.type === 'warning' ? 'text-alert-yellow' : 'text-plasma'
+                                <div className={`mt-0.5 ${alert.severity === 'critical' ? 'text-alert-red animate-pulse' :
+                                    alert.severity === 'warning' ? 'text-alert-yellow' : 'text-plasma'
                                     }`}>
-                                    {alert.type === 'info' ? <Activity className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                                    {alert.severity === 'info' ? <Activity className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
                                 </div>
-                                <p className="flex-1 text-sm font-sora text-gray-300 leading-snug">{alert.msg}</p>
+                                <p className="flex-1 text-sm font-sora text-gray-300 leading-snug">{alert.message}</p>
                             </div>
 
                             <div className="flex justify-between items-center ml-7 mt-1">
-                                <span className="text-[10px] font-mono text-gray-500">{alert.time}</span>
+                                <span className="text-[10px] font-mono text-gray-500">{alert.created_at}</span>
                                 <button className="text-[10px] font-mono font-bold text-plasma hover:text-white flex items-center gap-1 transition-colors">
                                     <Check className="w-3 h-3" /> ACKNOWLEDGE
                                 </button>

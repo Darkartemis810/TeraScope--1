@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Activity, ShieldAlert, Cpu } from 'lucide-react';
+import { Activity, ShieldAlert } from 'lucide-react';
 import { useStore } from './store';
 
-// Placeholder imports for modules
+// Modules
+import Hub from './modules/Hub/Hub';
 import EventSidebar from './modules/EventSidebar/EventSidebar';
 import DamageMap from './modules/DamageMap/DamageMap';
 import BeforeAfterSlider from './modules/BeforeAfterSlider/BeforeAfterSlider';
@@ -25,21 +26,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Navbar = () => {
   const navRef = useRef(null);
-  const { toggleAlertPanel, isAlertPanelOpen } = useStore();
+  const { toggleAlertPanel } = useStore();
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname !== '/') return;
-
     const nav = navRef.current;
+    const isHub = location.pathname === '/';
 
-    // Morphing floating island effect
     const onScroll = () => {
-      if (window.scrollY > 100) {
+      // Hub has a morphing nav, sub-pages have it solid always
+      if (!isHub || window.scrollY > 50) {
         gsap.to(nav, {
-          backgroundColor: 'rgba(10, 10, 20, 0.7)',
+          backgroundColor: 'rgba(5, 5, 10, 0.8)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(123, 97, 255, 0.3)',
+          border: '1px solid rgba(0, 229, 255, 0.3)',
           padding: '0.75rem 2rem',
           y: 0,
           duration: 0.4,
@@ -58,6 +58,7 @@ const Navbar = () => {
       }
     };
 
+    onScroll(); // Trigger instantly on mount/route change
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, [location.pathname]);
@@ -70,8 +71,9 @@ const Navbar = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-6 font-mono text-sm opacity-80">
-        <a href="/" className="hover:text-plasma hover:-translate-y-0.5 transition-transform">DASHBOARD</a>
-        <a href="#alerts" className="hover:text-plasma hover:-translate-y-0.5 transition-transform" onClick={(e) => { e.preventDefault(); toggleAlertPanel(); }}>ALERTS</a>
+        <a href="/" className="hover:text-plasma transition-colors">HUB</a>
+        <a href="/monitor" className="hover:text-plasma transition-colors">MONITOR</a>
+        <a href="#alerts" className="hover:text-plasma transition-colors" onClick={(e) => { e.preventDefault(); toggleAlertPanel(); }}>ALERTS</a>
       </div>
 
       <button onClick={toggleAlertPanel} className="relative text-ghost hover:text-plasma transition-colors">
@@ -82,63 +84,74 @@ const Navbar = () => {
   );
 };
 
-const Dashboard = () => {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Entrance animation
-      gsap.from('.dashboard-panel', {
-        y: 40,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: 'power3.out',
-        delay: 0.2
-      });
-    }, containerRef);
-    return () => ctx.revert();
-  }, []);
-
+// Layout: Live Monitor Module
+const LiveMonitorModule = () => {
   return (
-    <div ref={containerRef} className="min-h-screen pt-24 pb-12 px-4 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-6 max-w-[1920px] mx-auto">
-      {/* Left Sidebar */}
-      <div className="md:col-span-3 lg:col-span-2 dashboard-panel h-[calc(100vh-8rem)]">
+    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-6 max-w-[1920px] mx-auto animate-fade-in">
+      <div className="md:col-span-1 h-[calc(100vh-8rem)]">
         <EventSidebar />
       </div>
-
-      {/* Main Center Area */}
-      <div className="md:col-span-9 lg:col-span-7 flex flex-col gap-6 h-[calc(100vh-8rem)] dashboard-panel relative">
-        <div className="relative flex-1 rounded-3xl overflow-hidden border border-gray-800 shadow-glow">
-          <DamageMap />
-          <GroundTruthLayer />
-          <BeforeAfterSlider />
-          <div className="absolute top-4 right-4 z-[400] pointer-events-none">
-            <StatCards />
-          </div>
-        </div>
-
-        <div className="h-48 rounded-3xl bg-graphite border border-gray-800 p-4">
-          <Timeline />
+      <div className="md:col-span-3 h-[calc(100vh-8rem)] relative rounded-3xl overflow-hidden border border-gray-800 shadow-glow">
+        <DamageMap />
+        <GroundTruthLayer />
+        <div className="absolute top-4 right-4 z-[400] pointer-events-none">
+          <StatCards />
         </div>
       </div>
+      <AIChat />
+    </div>
+  );
+};
 
-      {/* Right Intelligence Panel */}
-      <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto pr-2 dashboard-panel custom-scrollbar">
+// Layout: Damage Intelligence Module
+const DamageIntelligenceModule = () => {
+  return (
+    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[1400px] mx-auto animate-fade-in">
+      <div className="flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
         <AIReportPanel />
-        <div className="bg-graphite rounded-3xl p-5 border border-gray-800">
+      </div>
+      <div className="flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
+        <div className="bg-graphite rounded-3xl p-5 border border-gray-800 shadow-glow">
           <SeverityChart />
         </div>
-        <InfraRiskPanel />
-        <div className="bg-graphite rounded-3xl p-5 border border-gray-800">
+        <div className="h-96">
+          <InfraRiskPanel />
+        </div>
+        <div className="bg-graphite rounded-3xl p-5 border border-gray-800 flex-1">
           <RecoveryChart />
         </div>
       </div>
-
-      {/* Overlays */}
-      <AlertPanel />
-      <AssessMyArea />
       <AIChat />
+    </div>
+  );
+};
+
+// Layout: Satellite Operations Module
+const SatelliteOpsModule = () => {
+  return (
+    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 flex flex-col gap-6 max-w-[1920px] mx-auto animate-fade-in">
+      <div className="flex-1 relative rounded-3xl overflow-hidden border border-gray-800 shadow-glow min-h-[500px]">
+        <BeforeAfterSlider />
+      </div>
+      <div className="h-56 rounded-3xl bg-graphite border border-gray-800 p-4">
+        <Timeline />
+      </div>
+      <AIChat />
+    </div>
+  );
+};
+
+// Placeholder layout for Assess
+const AssessModule = () => {
+  const { toggleAssessModal } = useStore();
+  useEffect(() => {
+    toggleAssessModal(true);
+  }, [toggleAssessModal]);
+
+  return (
+    <div className="min-h-screen pt-32 px-8 max-w-[1400px] mx-auto text-center animate-fade-in">
+      <h1 className="text-4xl font-sora font-semibold text-ghost mb-4">Field Assessment Module</h1>
+      <p className="text-gray-400 font-mono">Opening civilian submission interface...</p>
     </div>
   );
 };
@@ -148,9 +161,18 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Hub />} />
+        <Route path="/monitor" element={<LiveMonitorModule />} />
+        <Route path="/intelligence" element={<DamageIntelligenceModule />} />
+        <Route path="/satellite" element={<SatelliteOpsModule />} />
+        <Route path="/assess" element={<AssessModule />} />
+
         <Route path="/report/:slug" element={<PublicReport />} />
       </Routes>
+
+      {/* Global Overlays */}
+      <AlertPanel />
+      <AssessMyArea />
     </Router>
   );
 };
