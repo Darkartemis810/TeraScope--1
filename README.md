@@ -1,12 +1,15 @@
 # TeraScope — Satellite-Powered Disaster Intelligence Platform
 
-> Real-time disaster damage assessment using orbital imagery, AI-driven analysis, and crowdsourced ground truth — built for emergency responders and civilians.
+> Real-time disaster damage assessment using orbital imagery, AI-driven analysis, live public APIs, and crowdsourced ground truth — built for emergency responders **and** civilians.
 
 ---
 
 ## Overview
 
-TeraScope is a full-stack disaster management platform that combines **Sentinel-2 satellite imagery**, **AI damage classification**, and **live event monitoring** to deliver actionable intelligence during natural disasters. The system ingests data from GDACS, USGS, and NASA EONET, processes satellite feeds for damage assessment, generates AI situation reports, and surfaces everything through a real-time dashboard with WebSocket updates.
+TeraScope is a full-stack disaster management platform that combines **Sentinel-2 satellite imagery**, **AI damage classification**, **live USGS/EONET/NWS feeds**, and **Gemini AI** to deliver actionable intelligence during natural disasters. The system serves two audiences:
+
+- **Responders** — real-time satellite damage analysis, AI situation reports, ground truth validation, and infrastructure risk assessment surfaced through a WebSocket-powered dashboard.
+- **Civilians** — a dedicated public dashboard with live disaster maps, escape route planning, real shelter locations, weather forecasts, NWS severity alerts, SOS tools, and a Gemini-powered emergency chatbot.
 
 ### Key Capabilities
 
@@ -19,6 +22,11 @@ TeraScope is a full-stack disaster management platform that combines **Sentinel-
 | **Infrastructure Risk Assessment** | OSM-based analysis of hospitals, bridges, power stations, schools within affected zones |
 | **Recovery Tracking** | Monitors post-disaster recovery progression through successive satellite passes |
 | **Real-Time Alerts** | Threshold-based alert engine for critical events, infrastructure risk, and data disputes |
+| **Civilian Disaster Map** | Live danger/caution/safe zone polygons computed from real USGS magnitudes + OSRM escape routes |
+| **Real Shelter Finder** | OpenStreetMap Overpass API — nearest hospitals, emergency shelters, fire stations within 15 km |
+| **Weather Intelligence** | WeatherAPI.com 24 h forecast + severe alert extraction for user's GPS location |
+| **Gemini Chatbot** | On-device Gemini AI emergency assistant with disaster-context system prompt |
+| **SOS System** | One-tap emergency call + geolocation coordinates that works fully offline |
 
 ---
 
@@ -55,12 +63,19 @@ TeraScope is a full-stack disaster management platform that combines **Sentinel-
 |---|---|
 | React 19 | UI framework |
 | Vite 7.3 | Build tool & dev server |
-| Tailwind CSS 3.4 | Styling (dashboard theme + Vapor Clinic landing) |
+| Tailwind CSS 3.4 | Styling (void/plasma/graphite design tokens) |
 | GSAP 3 + ScrollTrigger | Cinematic animations (landing page & dashboard transitions) |
 | Zustand | Global state management + WebSocket client |
-| Leaflet + React-Leaflet | Interactive damage maps |
+| Leaflet + React-Leaflet | Interactive damage maps + live disaster zone polygons |
 | Recharts | Severity charts, recovery graphs |
 | Lucide React | Icon system |
+| WeatherAPI.com | 24 h weather forecast + severe alert extraction |
+| Google Gemini API | On-device AI emergency chatbot |
+| USGS Earthquake Feed | Real-time M2.5+ earthquake data (free, no key) |
+| NASA EONET | Wildfire, storm, volcano events (free, no key) |
+| NWS Alerts API | US National Weather Service alert polygons (free) |
+| OpenStreetMap Overpass | Real shelter/hospital/fire station locations (free) |
+| OSRM Routing | Open-source road routing for escape routes (free) |
 
 ### Backend
 | Technology | Purpose |
@@ -124,7 +139,20 @@ TeraScope/
 │   │   │   └── LoginCivilian.jsx        # Civilian login
 │   │   ├── dashboards/
 │   │   │   ├── civilian/
-│   │   │   │   └── CivilianDashboard.jsx
+│   │   │   │   ├── CivilianDashboard.jsx        # Geolocation entry point
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── SeverityBanner.jsx        # NWS severity level 1–5 banner
+│   │   │   │   │   ├── LiveAlerts.jsx            # NWS alert ticker
+│   │   │   │   │   ├── EscapeRoutesMap.jsx       # Real disaster map (USGS+EONET+NWS+OSRM)
+│   │   │   │   │   ├── ShelterInfo.jsx           # OSM real shelters via Overpass API
+│   │   │   │   │   ├── WeatherWidget.jsx         # WeatherAPI.com 24h forecast
+│   │   │   │   │   ├── DisasterInfoCards.jsx     # Flood/EQ/fire/hurricane DO's & DON'Ts
+│   │   │   │   │   ├── SOSButton.jsx             # One-tap SOS + geolocation
+│   │   │   │   │   ├── BeforeAfterSliderCivilian.jsx  # Satellite image comparison
+│   │   │   │   │   ├── OSINTPanel.jsx            # Community reports
+│   │   │   │   │   └── CivilianChatbot.jsx       # Gemini AI emergency chatbot
+│   │   │   │   └── services/
+│   │   │   │       └── disasterDataService.js    # All real-data fetchers (USGS/EONET/NWS/OSRM/Overpass)
 │   │   │   └── responder/
 │   │   │       ├── DashboardNavbar.jsx  # GSAP scroll-morphing nav
 │   │   │       └── layouts.jsx          # Monitor, Intelligence, Satellite, Assess
@@ -150,6 +178,7 @@ TeraScope/
 │   ├── tailwind.config.js
 │   └── package.json
 │
+├── vercel.json                          # Vercel SPA rewrites + build config
 ├── GEMINI.md                            # Landing page builder specification
 ├── SENTINEL_API_KEYS.env                # API keys (Sentinel Hub, Groq, etc.)
 └── README.md
@@ -245,7 +274,15 @@ uvicorn main:app --reload --port 8000
 
 ### Environment Variables
 
-Create a `.env` file in `backend/` or configure `SENTINEL_API_KEYS.env` in root:
+**Frontend** — create `frontend/.env`:
+
+```env
+VITE_WEATHERAPI_KEY=your-weatherapi-key        # https://www.weatherapi.com
+VITE_GEMINI_API_KEY=your-gemini-api-key        # https://aistudio.google.com
+VITE_API_URL=http://localhost:8000/api
+```
+
+**Backend** — create `backend/.env` or configure `SENTINEL_API_KEYS.env` in root:
 
 ```env
 DATABASE_URL=postgresql://user:pass@host/db
@@ -259,6 +296,8 @@ HF_TOKEN=your-huggingface-token
 FRONTEND_URL=http://localhost:5173
 ```
 
+> **Note:** USGS, NASA EONET, NWS, OSRM, and Overpass APIs are all **free with no API key required**.
+
 ---
 
 ## Routes
@@ -269,7 +308,7 @@ FRONTEND_URL=http://localhost:5173
 | `/responder-login` | Responder authentication |
 | `/login/civilian` | Civilian portal login |
 | `/dashboard/organization` | Responder dashboard (Hub + Alerts) |
-| `/dashboard/civilian` | Civilian dashboard |
+| `/dashboard/civilian` | Civilian dashboard — live disaster map, shelter finder, weather, SOS, chatbot |
 | `/dashboard/monitor` | Live event monitor with damage map |
 | `/dashboard/intelligence` | AI reports + severity + infrastructure risk |
 | `/dashboard/satellite` | Before/after satellite comparison + timeline |
@@ -321,6 +360,56 @@ FRONTEND_URL=http://localhost:5173
 ## License
 
 MIT
+
+---
+
+---
+
+## Civilian Dashboard — Real Data Sources
+
+The civilian dashboard (`/dashboard/civilian`) uses **zero mock data** — every data point is fetched live:
+
+| Feature | Data Source | Key Required |
+|---|---|---|
+| Severity Banner | NWS Alerts API | No |
+| Live Alert Ticker | NWS Alerts API | No |
+| Disaster Map Zones | USGS + NASA EONET + magnitude-based radius algorithm | No |
+| NWS Alert Polygons | NWS Alerts API (geometry field) | No |
+| Escape Routes | OSRM (OpenStreetMap routing) | No |
+| Shelter Finder | Overpass API (OSM hospitals, shelters, fire stations) | No |
+| Weather Widget | WeatherAPI.com 24 h forecast | Yes (`VITE_WEATHERAPI_KEY`) |
+| Emergency Chatbot | Google Gemini API | Yes (`VITE_GEMINI_API_KEY`) |
+| SOS Button | Browser Geolocation API | No |
+
+### Zone Classification Algorithm
+
+Danger/caution/safe zones are computed from real disaster data using magnitude-based radii:
+
+| Disaster Type | Danger Radius | Caution Radius |
+|---|---|---|
+| Earthquake M7+ | 30 km | 80 km |
+| Earthquake M6+ | 15 km | 40 km |
+| Earthquake M5+ | 8 km | 20 km |
+| Earthquake M4+ | 3 km | 10 km |
+| Tropical Cyclone | 50 km | 150 km |
+| Wildfire | 5 km | 20 km |
+| Volcano | 10 km | 30 km |
+
+---
+
+## Deployment
+
+The repo includes a `vercel.json` at the root for one-click Vercel deployment:
+
+```json
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+
+If your Vercel project has **Root Directory** set to `frontend/`, a `frontend/vercel.json` with just the SPA rewrites is also included.
 
 ---
 
