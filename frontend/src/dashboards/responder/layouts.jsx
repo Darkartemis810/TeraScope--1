@@ -1,4 +1,6 @@
 import React from 'react';
+import { useStore } from '../../store';
+import Assessment from '../../modules/Assessment/Assessment';
 
 import EventSidebar from '../../modules/EventSidebar/EventSidebar';
 import DamageMap from '../../modules/DamageMap/DamageMap';

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
-import { Activity, ShieldAlert, Globe, Satellite, FileSearch, LayoutGrid } from 'lucide-react';
+import { Activity, ShieldAlert, Globe, Satellite, FileSearch, LayoutGrid, ClipboardList } from 'lucide-react';
 import { useStore } from '../../store';
 
 const NAV_LINKS = [
@@ -9,6 +9,7 @@ const NAV_LINKS = [
     { label: 'MONITOR', path: '/monitor', icon: Globe },
     { label: 'INTELLIGENCE', path: '/intelligence', icon: FileSearch },
     { label: 'SATELLITE', path: '/satellite', icon: Satellite },
+    { label: 'ASSESS', path: '/assess', icon: ClipboardList },
 ];
 
 const DashboardNavbar = () => {
