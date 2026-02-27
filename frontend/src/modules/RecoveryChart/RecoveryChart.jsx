@@ -3,7 +3,7 @@ import { useStore } from '../../store';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 
-const mockData = [
+const defaultData = [
     { day: 'D+0', score: 0, high_sev_km2: 120 },
     { day: 'D+3', score: 15, high_sev_km2: 102 },
     { day: 'D+7', score: 32, high_sev_km2: 81 },
@@ -12,9 +12,11 @@ const mockData = [
 ];
 
 const RecoveryChart = () => {
-    const { activeEventId } = useStore();
+    const { activeEventId, analysisData } = useStore();
+    const isDemo = !activeEventId;
 
-    if (!activeEventId) return null;
+    const data = analysisData?.recovery_trajectory || defaultData;
+    const latestScore = data[data.length - 1]?.score ?? 71;
 
     return (
         <div className="h-40 flex flex-col group">
@@ -23,12 +25,14 @@ const RecoveryChart = () => {
                     <TrendingUp className="w-4 h-4 text-plasma" />
                     Recovery Trajectory
                 </h3>
-                <span className="text-xs font-mono text-alert-green">71% RECOVERED</span>
+                <span className="text-xs font-mono text-alert-green">
+                    {isDemo ? <span className="text-gray-600 italic text-[10px]">DEMO DATA</span> : `${latestScore}% RECOVERED`}
+                </span>
             </div>
 
             <div className="flex-1 -ml-6 -mb-4">
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={mockData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                    <LineChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                         <XAxis
                             dataKey="day"
                             axisLine={false}

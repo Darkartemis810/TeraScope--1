@@ -16,7 +16,8 @@ const EventIcon = ({ type }) => {
 
 const EventSidebar = () => {
     const { events, sidebarFilter, setSidebarFilter, setActiveEventId, activeEventId, wsConnected } = useStore();
-    const loading = !wsConnected && events.length === 0;
+    // Only show skeleton if truly no events at all (won't happen with mock seed)
+    const loading = events.length === 0;
 
     const filteredEvents = events.filter(e =>
         sidebarFilter === 'ALL' || e.event_type === sidebarFilter
@@ -24,13 +25,23 @@ const EventSidebar = () => {
 
     return (
         <div className="h-full flex flex-col bg-graphite rounded-3xl border border-gray-800 p-4">
-            <h2 className="text-xl font-sora font-semibold mb-4 text-ghost flex items-center justify-between">
+            <h2 className="text-xl font-sora font-semibold mb-1 text-ghost flex items-center justify-between">
                 Live Monitor
                 <div className="flex items-center gap-2 text-xs font-mono text-alert-green">
                     <span className="w-2 h-2 rounded-full bg-alert-green animate-pulse"></span>
                     ACTIVE
                 </div>
             </h2>
+
+            {/* Backend status */}
+            {!wsConnected && (
+                <div className="mb-3 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-void border border-gray-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                    <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">
+                        Offline — showing historical events
+                    </span>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="flex gap-2 mb-4 overflow-x-auto custom-scrollbar pb-2">

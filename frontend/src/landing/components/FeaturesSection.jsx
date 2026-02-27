@@ -281,38 +281,67 @@ const FeaturesSection = () => {
         <section
             ref={sectionRef}
             id="features"
-            className="relative w-full py-28 md:py-36 px-6 md:px-12 lg:px-24 bg-[#F0EFF4]"
+            className="relative w-full py-28 md:py-36 px-6 md:px-12 lg:px-24 bg-[#F0EFF4] overflow-hidden"
         >
-            <div className="max-w-7xl mx-auto">
+            {/* Subtle grid texture */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
+                style={{ backgroundImage: 'repeating-linear-gradient(0deg,#18181B 0px,#18181B 1px,transparent 1px,transparent 60px),repeating-linear-gradient(90deg,#18181B 0px,#18181B 1px,transparent 1px,transparent 60px)' }}
+            />
+
+            <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="mb-20">
-                    <span className="block font-mono text-xs text-[#7B61FF] uppercase tracking-widest mb-4">
-                        Capabilities
-                    </span>
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-sora font-bold text-[#18181B] tracking-tight">
-                        Intelligence{' '}
-                        <span className="font-drama italic font-normal text-[#7B61FF]">Redefined</span>
-                    </h2>
+                <div className="mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                    <div>
+                        <span className="block font-mono text-xs text-[#7B61FF] uppercase tracking-widest mb-4">
+                            Capabilities
+                        </span>
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-sora font-bold text-[#18181B] tracking-tight">
+                            Intelligence{' '}
+                            <span className="font-drama italic font-normal text-[#7B61FF]">Redefined</span>
+                        </h2>
+                    </div>
+                    <p className="text-[#18181B]/40 font-mono text-sm max-w-xs leading-relaxed">
+                        Three integrated systems working in unison — from orbital tasking to field coordination.
+                    </p>
                 </div>
 
                 {/* Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {cards.map(({ label, descriptor, Component }, i) => (
                         <div
                             key={i}
-                            className="feature-card bg-[#F0EFF4] border border-[#18181B]/8 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:border-[#7B61FF]/25 transition-all duration-500 group"
+                            className="feature-card bg-white border border-[#18181B]/10 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(24,24,27,0.07)] hover:shadow-[0_12px_48px_rgba(123,97,255,0.15)] hover:border-[#7B61FF]/30 hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden"
                         >
+                            {/* Step number */}
+                            <div className="absolute top-6 right-6 font-mono text-[10px] text-[#18181B]/20 uppercase tracking-widest">
+                                0{i + 1}
+                            </div>
+
+                            {/* Hover gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#7B61FF]/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]" />
+
                             {/* Card micro-UI */}
                             <Component />
 
                             {/* Card text */}
-                            <h3 className="font-sora font-bold text-[#18181B] text-lg mt-6 mb-2 tracking-tight">
-                                {label}
-                            </h3>
-                            <p className="text-[#18181B]/50 text-sm leading-relaxed">
-                                {descriptor}
-                            </p>
+                            <div className="mt-6 pt-6 border-t border-[#18181B]/6">
+                                <h3 className="font-sora font-bold text-[#18181B] text-lg mb-2 tracking-tight group-hover:text-[#18181B] transition-colors">
+                                    {label}
+                                </h3>
+                                <p className="text-[#18181B]/50 text-sm leading-relaxed">
+                                    {descriptor}
+                                </p>
+                            </div>
                         </div>
+                    ))}
+                </div>
+
+                {/* Bottom badge row */}
+                <div className="mt-16 flex flex-wrap items-center gap-4 justify-center">
+                    {['Real-time Processing', 'Multi-spectrum Imagery', 'AI-Powered Classification', 'Agency Integration', 'Zero Latency Alerts'].map((tag, i) => (
+                        <span key={i} className="px-4 py-2 rounded-full border border-[#18181B]/10 bg-white font-mono text-xs text-[#18181B]/50 shadow-sm">
+                            {tag}
+                        </span>
                     ))}
                 </div>
             </div>

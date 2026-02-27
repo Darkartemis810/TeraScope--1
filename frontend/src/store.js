@@ -1,12 +1,13 @@
 import { create } from 'zustand';
+import { MOCK_EVENTS, MOCK_ANALYSIS } from './mockData';
 
 export const useStore = create((set) => ({
-    // Core state
+    // Core state — seed with mock events immediately so UI is never blank
     activeEventId: null,
     isAnalyzing: false,
 
     // Data caches
-    events: [],
+    events: MOCK_EVENTS,          // ← pre-seeded with realistic past events
     alerts: [],
     activeEventDetails: null,
     analysisData: null,
@@ -21,7 +22,9 @@ export const useStore = create((set) => ({
 
     // Actions
     setActiveEventId: (id) => {
-        set({ activeEventId: id, analysisData: null });
+        // Resolve event details from the already-loaded events list
+        const eventDetails = MOCK_EVENTS.find(e => e.id === id) || null;
+        set({ activeEventId: id, analysisData: null, activeEventDetails: eventDetails });
         if (id) {
             useStore.getState().fetchIntelligenceData(id);
         }
@@ -35,7 +38,7 @@ export const useStore = create((set) => ({
     toggleAlertPanel: () => set((state) => ({ isAlertPanelOpen: !state.isAlertPanelOpen })),
     toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
-    // WebSocket Client
+    // WebSocket Client — merges live events ON TOP of mock seed
     connectWebSocket: () => {
         const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/ws';
         const ws = new WebSocket(wsUrl);
@@ -49,7 +52,11 @@ export const useStore = create((set) => ({
             try {
                 const payload = JSON.parse(event.data);
                 if (payload.type === 'events_update') {
-                    set({ events: payload.data.features || payload.data });
+                    const liveEvents = payload.data.features || payload.data;
+                    // Merge: live events first, then mock events not already in live feed
+                    const liveIds = new Set(liveEvents.map(e => e.id));
+                    const merged = [...liveEvents, ...MOCK_EVENTS.filter(e => !liveIds.has(e.id))];
+                    set({ events: merged });
                 } else if (payload.type === 'alerts_update') {
                     set({ alerts: payload.data });
                 }
@@ -72,27 +79,30 @@ export const useStore = create((set) => ({
         };
     },
 
-    // REST API Actions
+    // REST API Actions — falls back to mock analysis when API is unavailable
     fetchIntelligenceData: async (eventId) => {
+        // Always show mock data immediately while (possibly) fetching real data
+        const mockFallback = MOCK_ANALYSIS[eventId];
+        if (mockFallback) {
+            set({ analysisData: mockFallback });
+        }
+
         try {
             const url = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-            // 1. Get latest analysis for this event
-            const analysesRes = await fetch(`${url}/satellite/analyses/${eventId}`);
+            const analysesRes = await fetch(`${url}/satellite/analyses/${eventId}`, { signal: AbortSignal.timeout(4000) });
+            if (!analysesRes.ok) throw new Error('API unavailable');
             const analyses = await analysesRes.json();
 
-            if (!analyses || analyses.length === 0) {
-                set({ analysisData: null });
-                return;
-            }
+            if (!analyses || analyses.length === 0) return; // keep mock data
 
             const latestAnalysis = analyses[0];
 
-            // 2. Fetch full intelligence report for that analysis
-            const intelRes = await fetch(`${url}/intelligence/${latestAnalysis.id}`);
-            const intelData = await intelRes.json();
+            const [intelRes, bldRes] = await Promise.all([
+                fetch(`${url}/intelligence/${latestAnalysis.id}`),
+                fetch(`${url}/intelligence/buildings/${eventId}`),
+            ]);
 
-            // 3. Fetch building GeoJSON directly
-            const bldRes = await fetch(`${url}/intelligence/buildings/${eventId}`);
+            const intelData = await intelRes.json();
             const buildings = await bldRes.json();
 
             set({
@@ -103,8 +113,8 @@ export const useStore = create((set) => ({
             });
 
         } catch (err) {
-            console.error("Failed to fetch intelligence data", err);
-            set({ analysisData: null });
+            // API unreachable — mock data is already set above, nothing to do
+            console.info(`[TeraScope] Backend offline — using mock analysis for ${eventId}`);
         }
     }
 }));
