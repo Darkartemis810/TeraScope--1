@@ -266,3 +266,57 @@ MOCK_EVENTS.forEach(ev => {
         min: s.minor_damage_pct / 100,
     });
 });
+
+// ── MOCK SATELLITE PASSES ─────────────────────────────────────────────
+// Pre-event baseline + post-event pass per disaster type
+// Images: Unsplash aerial/disaster photography (public domain)
+const BASE_IMGS = {
+    EQ: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80',  // urban aerial
+    FL: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=1200&q=80',  // river farmland aerial
+    WF: 'https://images.unsplash.com/photo-1448630360428-65456885c650?w=1200&q=80',  // forest aerial
+    TC: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1200&q=80',  // coastal aerial
+    VO: 'https://images.unsplash.com/photo-1542401886-65d4f61d1176?w=1200&q=80',  // green landscape aerial
+};
+const POST_IMGS = {
+    EQ: 'https://images.unsplash.com/photo-1590483864700-1cffa7bfcaaa?w=1200&q=80',  // collapsed structures
+    FL: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=1200&q=80',  // flooded streets
+    WF: 'https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1200&q=80',  // active fire smoke
+    TC: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200&q=80',  // storm damage aerial
+    VO: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1200&q=80',  // lava flow
+};
+const SENSORS = ['Sentinel-2 MSI', 'Landsat 8 OLI', 'Planet SuperDove', 'COSMO-SkyMed SAR'];
+
+export const MOCK_PASSES = {};
+MOCK_EVENTS.forEach((ev, i) => {
+    const type = ev.event_type;
+    const sensor = SENSORS[i % SENSORS.length];
+    const eventDate = new Date(ev.event_date);
+    const baselineDate = new Date(eventDate);
+    baselineDate.setDate(baselineDate.getDate() - 30);
+    const postDate = new Date(eventDate);
+    postDate.setDate(postDate.getDate() + 4);
+    MOCK_PASSES[ev.id] = [
+        {
+            id: `${ev.id}-PRE`,
+            event_id: ev.id,
+            is_baseline: true,
+            is_event_pass: false,
+            pass_date: baselineDate.toISOString().split('T')[0],
+            sensor,
+            cloud_cover_pct: Math.floor(Math.random() * 8) + 1,
+            resolution_m: 10,
+            thumbnail_url: BASE_IMGS[type] || BASE_IMGS.EQ,
+        },
+        {
+            id: `${ev.id}-POST`,
+            event_id: ev.id,
+            is_baseline: false,
+            is_event_pass: true,
+            pass_date: postDate.toISOString().split('T')[0],
+            sensor: SENSORS[(i + 1) % SENSORS.length],
+            cloud_cover_pct: Math.floor(Math.random() * 18) + 4,
+            resolution_m: 10,
+            thumbnail_url: POST_IMGS[type] || POST_IMGS.EQ,
+        },
+    ];
+});

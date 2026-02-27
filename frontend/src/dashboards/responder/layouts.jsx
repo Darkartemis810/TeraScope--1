@@ -10,8 +10,7 @@ import AIReportPanel from '../../modules/AIReportPanel/AIReportPanel';
 import SeverityChart from '../../modules/SeverityChart/SeverityChart';
 import InfraRiskPanel from '../../modules/InfraRiskPanel/InfraRiskPanel';
 import RecoveryChart from '../../modules/RecoveryChart/RecoveryChart';
-import BeforeAfterSlider from '../../modules/BeforeAfterSlider/BeforeAfterSlider';
-import Timeline from '../../modules/Timeline/Timeline';
+import SatelliteOps from '../../modules/SatelliteOps/SatelliteOps';
 
 // Layout: Live Monitor Module
 export const LiveMonitorModule = () => {
@@ -89,17 +88,7 @@ export const DamageIntelligenceModule = () => {
 
 // Layout: Satellite Operations Module
 export const SatelliteOpsModule = () => {
-  return (
-    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 flex flex-col gap-6 max-w-[1920px] mx-auto animate-fade-in">
-      <div className="flex-1 relative rounded-3xl overflow-hidden border border-gray-800 shadow-glow min-h-[500px]">
-        <BeforeAfterSlider />
-      </div>
-      <div className="h-56 rounded-3xl bg-graphite border border-gray-800 p-4">
-        <Timeline />
-      </div>
-      <AIChat />
-    </div>
-  );
+  return <SatelliteOps />;
 };
 
 // Layout: Assess Module
