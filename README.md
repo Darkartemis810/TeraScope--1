@@ -7,6 +7,14 @@
 ## Overview
 
 TeraScope is a full-stack disaster management platform that combines **Sentinel-2 satellite imagery**, **AI damage classification**, and **live event monitoring** to deliver actionable intelligence during natural disasters. The system ingests data from GDACS, USGS, and NASA EONET, processes satellite feeds for damage assessment, generates AI situation reports, and surfaces everything through a real-time dashboard with WebSocket updates.
+# Terrascope
+<img width="940" height="498" alt="image" src="https://github.com/user-attachments/assets/44e75207-d4ea-4f10-ac78-ab1da70c6793" />
+<img width="940" height="502" alt="image" src="https://github.com/user-attachments/assets/70fa036b-6cfc-4cdd-8091-a2bc3b0d5e76" />
+<img width="940" height="506" alt="image" src="https://github.com/user-attachments/assets/b200e133-77a3-453a-94e2-abeee0ffd412" />
+<img width="940" height="548" alt="image" src="https://github.com/user-attachments/assets/f06462bb-e5ac-4dc6-a9d9-75759d3bdfe8" />
+<img width="2213" height="1237" alt="image" src="https://github.com/user-attachments/assets/de842dac-d9cc-4c01-abaa-fd18662fdda8" />
+<img width="1631" height="868" alt="image" src="https://github.com/user-attachments/assets/a80545a0-00e9-444f-898b-bc139739e0ba" />
+<img width="1674" height="887" alt="image" src="https://github.com/user-attachments/assets/371325cb-c327-4afe-bc7c-ae52f67a229e" />
 
 ### Key Capabilities
 
