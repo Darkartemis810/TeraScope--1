@@ -1,8 +1,5 @@
-node_modules/
-
 # Python bytecode and cache
 __pycache__/
-*.pyc
 *.py[cod]
 *$py.class
 
@@ -55,9 +52,15 @@ Thumbs.db
 *.swp
 *.swo
 
-# Build tools
-.vite/
+# Optional: uncomment if model files are too large for git
+# *.pt
+# *.pth
+# final_model/
 
 # Model folders
 model/
 final_model/
+
+# Local/demo assets
+static/sample_images/
+test.png

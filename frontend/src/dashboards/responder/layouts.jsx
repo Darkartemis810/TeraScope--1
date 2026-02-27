@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { useStore } from '../../store';
+import React from 'react';
 
 import EventSidebar from '../../modules/EventSidebar/EventSidebar';
 import DamageMap from '../../modules/DamageMap/DamageMap';
@@ -93,15 +92,9 @@ export const SatelliteOpsModule = () => {
 
 // Layout: Assess Module
 export const AssessModule = () => {
-  const { toggleAssessModal } = useStore();
-  useEffect(() => {
-    toggleAssessModal(true);
-  }, [toggleAssessModal]);
-
   return (
-    <div className="min-h-screen pt-32 px-8 max-w-[1400px] mx-auto text-center animate-fade-in">
-      <h1 className="text-4xl font-sora font-semibold text-ghost mb-4">Field Assessment Module</h1>
-      <p className="text-gray-400 font-mono">Opening civilian submission interface...</p>
+    <div className="min-h-screen pt-24 pb-6 px-4 md:px-8 max-w-[1400px] mx-auto animate-fade-in">
+      <Assessment />
     </div>
   );
 };

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disaster Damage Assessment - Test UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background: #f6f8fb; color: #1f2937; }
+    .card { background: #fff; border-radius: 10px; padding: 18px; max-width: 900px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+    h1 { margin-top: 0; font-size: 22px; }
+    button { padding: 9px 14px; border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    input[type=file], input[type=url] { margin: 10px 0 14px; width: 100%; max-width: 420px; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; }
+    img.preview { max-width: 420px; max-height: 320px; border-radius: 8px; border: 1px solid #d1d5db; display: none; margin-top: 10px; }
+    pre { background: #111827; color: #e5e7eb; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    .row { display: flex; flex-wrap: wrap; gap: 20px; }
+    .col { flex: 1 1 340px; }
+    .samples a { display: inline-block; margin-right: 12px; margin-bottom: 8px; }
+    .stack { margin-top: 18px; }
+    .muted { color: #6b7280; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Disaster Damage Assessment - Test UI</h1>
+    <p class="muted">Use local upload (<code>/predict</code>) or direct URL (<code>/predict_url</code>) for quick real-photo testing.</p>
+
+    <div class="row">
+      <div class="col">
+        <form id="predictForm">
+          <label for="imageInput"><strong>Select image:</strong></label><br />
+          <input id="imageInput" name="image" type="file" accept="image/*" required />
+          <br />
+          <button id="predictBtn" type="submit">Run Prediction</button>
+        </form>
+
+        <form id="predictUrlForm" class="stack">
+          <label for="imageUrlInput"><strong>Or test with image URL:</strong></label><br />
+          <input id="imageUrlInput" type="url" placeholder="https://..." />
+          <br />
+          <button id="predictUrlBtn" type="submit">Run URL Prediction</button>
+        </form>
+
+        <img id="preview" class="preview" alt="Selected image preview" />
+      </div>
+
+      <div class="col">
+        <strong>Sample images:</strong>
+        <div class="samples">
+          <a href="/static/sample_images/sample_flooded_area.png" target="_blank">sample_flooded_area.png</a>
+          <a href="/static/sample_images/sample_smoke_damage.png" target="_blank">sample_smoke_damage.png</a>
+          <a href="/static/sample_images/sample_intact_building.png" target="_blank">sample_intact_building.png</a>
+        </div>
+        <div class="samples stack">
+          <strong>Try public URLs:</strong><br />
+          <a href="https://upload.wikimedia.org/wikipedia/commons/2/2f/Haiti_Earthquake_building_damage.jpg" target="_blank">Haiti earthquake damage</a>
+          <a href="https://upload.wikimedia.org/wikipedia/commons/5/5f/Jeddah_Flood_-_King_Abdullah_Street.jpg" target="_blank">Flood image</a>
+          <a href="https://upload.wikimedia.org/wikipedia/commons/0/05/Burnout_ops_on_Mangum_Fire_McCall_Smokejumpers.jpg" target="_blank">Wildfire image</a>
+        </div>
+
+        <strong>Response JSON:</strong>
+        <pre id="result">No request yet.</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('predictForm');
+    const input = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const result = document.getElementById('result');
+    const predictBtn = document.getElementById('predictBtn');
+    const predictUrlForm = document.getElementById('predictUrlForm');
+    const imageUrlInput = document.getElementById('imageUrlInput');
+    const predictUrlBtn = document.getElementById('predictUrlBtn');
+
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (!file) {
+        preview.style.display = 'none';
+        preview.src = '';
+        return;
+      }
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const file = input.files && input.files[0];
+      if (!file) {
+        result.textContent = 'Please select an image first.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      predictBtn.disabled = true;
+      result.textContent = 'Running prediction...';
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+        result.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.textContent = `Request failed: ${error}`;
+      } finally {
+        predictBtn.disabled = false;
+      }
+    });
+
+    predictUrlForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const imageUrl = imageUrlInput.value.trim();
+      if (!imageUrl) {
+        result.textContent = 'Please enter an image URL first.';
+        return;
+      }
+
+      predictUrlBtn.disabled = true;
+      result.textContent = 'Running URL prediction...';
+
+      try {
+        const response = await fetch('/predict_url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: imageUrl }),
+        });
+        const data = await response.json();
+        result.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.textContent = `Request failed: ${error}`;
+      } finally {
+        predictUrlBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
