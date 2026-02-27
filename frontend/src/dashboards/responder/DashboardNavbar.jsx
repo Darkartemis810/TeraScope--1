@@ -52,6 +52,7 @@ const DashboardNavbar = () => {
       <div className="hidden md:flex items-center gap-6 font-mono text-sm opacity-80">
         <a href="/hub" className="hover:text-plasma transition-colors">HUB</a>
         <a href="/monitor" className="hover:text-plasma transition-colors">MONITOR</a>
+        <a href="/assess" className="hover:text-plasma transition-colors">ASSESSMENT</a>
         <a href="#alerts" className="hover:text-plasma transition-colors" onClick={(e) => { e.preventDefault(); toggleAlertPanel(); }}>ALERTS</a>
       </div>
 
