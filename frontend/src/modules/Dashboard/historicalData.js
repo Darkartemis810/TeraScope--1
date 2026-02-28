@@ -43,8 +43,8 @@ export const historicalDisasters = [
     casualties: "85",
     affected_population: 52000,
     description: "The deadliest and most destructive wildfire in California history, destroying the town of Paradise.",
-    before_image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
-    after_image: "https://images.unsplash.com/photo-1590483864700-1cffa7bfcaaa?w=1200&q=80",
+    before_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Paradise_California_before_Camp_Fire.jpg/1280px-Paradise_California_before_Camp_Fire.jpg",
+    after_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paradise_California_after_Camp_Fire.jpg/1280px-Paradise_California_after_Camp_Fire.jpg",
     stats: {
       area_affected_km2: 620,
       structures_destroyed: 18804,
@@ -69,8 +69,8 @@ export const historicalDisasters = [
     casualties: "100+",
     affected_population: 12000,
     description: "Historic town of Lahaina devastated by windswept wildfires, the deadliest U.S. wildfire in over 100 years.",
-    before_image: "https://images.unsplash.com/photo-1542259009477-d625272157b7?w=1200&q=80",
-    after_image: "https://images.unsplash.com/photo-1573160099796-240c9ce1e041?w=1200&q=80",
+    before_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Aerial_view_of_Lahaina%2C_Hawaii.jpg/1280px-Aerial_view_of_Lahaina%2C_Hawaii.jpg",
+    after_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Lahaina_wildfire_destruction_aerial.jpg/1280px-Lahaina_wildfire_destruction_aerial.jpg",
     stats: {
       area_affected_km2: 8.8,
       structures_destroyed: 2207,
@@ -95,8 +95,8 @@ export const historicalDisasters = [
     casualties: "1,836",
     affected_population: 1200000,
     description: "Category 5 hurricane causing catastrophic damage to the Gulf Coast, 80% of New Orleans flooded.",
-    before_image: "https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=1200&q=80",
-    after_image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1b9?w=1200&q=80",
+    before_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/New_Orleans_Satellite_Image_Before_Hurricane_Katrina.jpg/1280px-New_Orleans_Satellite_Image_Before_Hurricane_Katrina.jpg",
+    after_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/New_Orleans_Satellite_Image_After_Hurricane_Katrina.jpg/1280px-New_Orleans_Satellite_Image_After_Hurricane_Katrina.jpg",
     stats: {
       area_affected_km2: 233100,
       structures_destroyed: 300000,
@@ -121,8 +121,8 @@ export const historicalDisasters = [
     casualties: "59,259",
     affected_population: 23000000,
     description: "Devastating earthquake affecting southeastern Turkey and northern Syria, collapsing thousands of buildings.",
-    before_image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&q=80",
-    after_image: "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=1200&q=80",
+    before_image: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Kahramanmaras_city_view.jpg",
+    after_image: "https://upload.wikimedia.org/wikipedia/commons/4/45/Aftermath_of_the_2023_Turkey%E2%80%93Syria_earthquake_in_Kahramanmara%C5%9F.jpg",
     stats: {
       area_affected_km2: 350000,
       structures_destroyed: 164000,

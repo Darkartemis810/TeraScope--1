@@ -3,37 +3,54 @@ import { useStore } from '../../store';
 import { Users, Building2, Map, Crosshair } from 'lucide-react';
 
 const StatCards = () => {
-    const { activeEventId } = useStore();
+    const { activeEventId, analysisData } = useStore();
 
     if (!activeEventId) return null;
+
+    const s = analysisData?.stats;
+    const area = s?.affected_area_km2 ?? '—';
+    const structures = s?.total_structures
+        ? s.total_structures.toLocaleString()
+        : '—';
+    const damaged = s
+        ? Math.round(s.total_structures * (1 - s.intact_pct / 100)).toLocaleString()
+        : '—';
+    const population = s?.population_at_risk
+        ? s.population_at_risk >= 1000000
+            ? `${(s.population_at_risk / 1000000).toFixed(1)}M`
+            : s.population_at_risk >= 1000
+            ? `${Math.round(s.population_at_risk / 1000)}k`
+            : s.population_at_risk
+        : '—';
+    const confidence = s?.ai_confidence_pct ?? '—';
 
     return (
         <div className="flex flex-col gap-3">
             <StatCard
                 icon={<Map className="w-4 h-4 text-plasma" />}
                 label="AFFECTED AREA"
-                value="142.5"
+                value={area}
                 unit="km²"
                 trend="+12%"
             />
             <StatCard
                 icon={<Building2 className="w-4 h-4 text-alert-red" />}
-                label="STRUCTURES"
-                value="1,240"
-                unit="dmg"
+                label="STRUCTURES DMG"
+                value={damaged}
+                unit="bldg"
                 trend="CRITICAL"
             />
             <StatCard
                 icon={<Users className="w-4 h-4 text-alert-orange" />}
                 label="POPULATION"
-                value="45k"
+                value={population}
                 unit="est"
                 trend="AT RISK"
             />
             <StatCard
                 icon={<Crosshair className="w-4 h-4 text-alert-green" />}
                 label="AI CONFIDENCE"
-                value="87"
+                value={confidence}
                 unit="%"
                 trend="STABLE"
             />

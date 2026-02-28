@@ -18,12 +18,18 @@ const RiskBadge = ({ risk }) => {
     return <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-alert-yellow/20 text-alert-yellow border border-alert-yellow/30 uppercase tracking-widest">Monitor</span>;
 };
 
+const demoFacilities = [
+    { id: 1, name: 'District General Hospital', facility_type: 'hospital', risk_level: 'critical', distance: '0.4 km' },
+    { id: 2, name: 'Substation Alpha-7', facility_type: 'power', risk_level: 'high', distance: '1.2 km' },
+    { id: 3, name: 'Water Treatment Plant', facility_type: 'water', risk_level: 'high', distance: '2.1 km' },
+    { id: 4, name: 'Emergency Comms Tower', facility_type: 'comms', risk_level: 'monitor', distance: '3.8 km' },
+];
+
 const InfraRiskPanel = () => {
     const { activeEventId, analysisData } = useStore();
 
-    if (!activeEventId) return null;
-
-    const facilities = analysisData?.at_risk_facilities || [];
+    const isDemo = !activeEventId;
+    const facilities = isDemo ? demoFacilities : (analysisData?.at_risk_facilities || []);
     const criticalCount = facilities.filter(f => f.risk_level === 'critical').length;
 
     return (
@@ -33,13 +39,16 @@ const InfraRiskPanel = () => {
                     <ShieldAlert className="w-4 h-4 text-plasma" />
                     Critical Infrastructure
                 </h3>
-                {criticalCount > 0 && (
-                    <span className="text-xs font-mono text-alert-red animate-pulse">{criticalCount} CRITICAL</span>
-                )}
+                <div className="flex items-center gap-2">
+                    {isDemo && <span className="text-[10px] font-mono text-gray-600 italic">DEMO</span>}
+                    {criticalCount > 0 && (
+                        <span className="text-xs font-mono text-alert-red animate-pulse">{criticalCount} CRITICAL</span>
+                    )}
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-2 pb-2">
-                {facilities.length === 0 && (
+                {!isDemo && facilities.length === 0 && (
                     <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-2 border border-dashed border-gray-800 rounded-2xl p-4">
                         <span className="text-[10px] font-mono text-center">NO INFRASTRUCTURE DATA<br />AWAITING ANALYSIS</span>
                     </div>
